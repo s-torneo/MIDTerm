@@ -9,5 +9,5 @@ che si potrà spostare mediante la tastiera. Dovranno essere previste aree clicc
 È consentito l’uso del codice visto a lezione, in particolare l’astrazione dei lightweight controls.
 
 Esercizio 2
-Si estenda il controllo dell’esercizio 3 per consentire l’associazione di muovere l’astronave con un modello ad accelerazione in assenza di
+Si estenda il controllo dell’esercizio 1 per consentire l’associazione di muovere l’astronave con un modello ad accelerazione in assenza di
 gravità (ovverosia si accelera e ci si muove per inerzia tipo asteroids).
