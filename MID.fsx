@@ -1,14 +1,8 @@
-//#load "Matrix.fsx"
-//#load "Controls.fsx"
 open System.Windows.Forms
 open System.Drawing
-open System.IO
-
-//open Matrix
-//open Controls
+open System
 
 // Libreria
-
 type WVMatrix () =
   let wv = new Drawing2D.Matrix()
   let vw = new Drawing2D.Matrix()
@@ -200,7 +194,7 @@ and LWCContainer() as this =
         |> Seq.iter(fun c ->
         if(c.Class = "ship") then
           c.WV.TranslateW(2.f, 0.f)
-         )
+        )
      this.Invalidate()
      count2 <- count2 + 1
      if (count2 = 50) then
@@ -216,7 +210,7 @@ and LWCContainer() as this =
   member this.Up() =
     controls 
         |> Seq.iter(fun c ->
-        if(c.Class <> "ship" && c.Class <> "Op") then
+        if(c.Class = "planet") then
           c.WV.TranslateV(0.f, 10.f)
         )
     this.Invalidate()
@@ -224,7 +218,7 @@ and LWCContainer() as this =
   member this.Down() = 
     controls 
         |> Seq.iter(fun c ->
-        if(c.Class <> "ship" && c.Class <> "Op") then
+        if(c.Class = "planet") then
           c.WV.TranslateV(0.f, -10.f)
         )
     this.Invalidate()
@@ -232,7 +226,7 @@ and LWCContainer() as this =
   member this.Left() = 
     controls 
         |> Seq.iter(fun c ->
-        if(c.Class <> "ship" && c.Class <> "Op") then
+        if(c.Class = "planet") then
           c.WV.TranslateV(10.f, 0.f)
         )
     this.Invalidate()
@@ -240,7 +234,7 @@ and LWCContainer() as this =
   member this.Right() = 
     controls 
         |> Seq.iter(fun c ->
-        if(c.Class <> "ship" && c.Class <> "Op") then
+        if(c.Class = "planet") then
           c.WV.TranslateV(-10.f, 0.f)
         )
     this.Invalidate()
@@ -249,7 +243,7 @@ and LWCContainer() as this =
     let cx, cy = this.ClientSize.Width / 2 |> single, this.ClientSize.Height / 2 |> single
     controls 
         |> Seq.iter(fun c ->
-        if(c.Class <> "Op") then
+        if(c.Class = "planet") then
           c.WV.TranslateV(cx, cy)
           c.WV.RotateV(10.f)
           c.WV.TranslateV(-cx, -cy)
@@ -260,7 +254,7 @@ and LWCContainer() as this =
     let cx, cy = this.ClientSize.Width / 2 |> single, this.ClientSize.Height / 2 |> single
     controls 
         |> Seq.iter(fun c ->
-        if(c.Class <> "Op") then
+        if(c.Class = "planet") then
           c.WV.TranslateV(cx, cy)
           c.WV.RotateV(-10.f)
           c.WV.TranslateV(-cx, -cy)
@@ -271,7 +265,7 @@ and LWCContainer() as this =
       let cx, cy = this.ClientSize.Width / 2 |> single, this.ClientSize.Height / 2 |> single
       controls 
         |> Seq.iter(fun c ->
-        if(c.Class <> "Op") then
+        if(c.Class = "planet") then
           c.WV.TranslateV(cx, cy)
           c.WV.ScaleV(1.1f, 1.1f)
           c.WV.TranslateV(-cx, -cy)
@@ -282,7 +276,7 @@ and LWCContainer() as this =
       let cx, cy = this.ClientSize.Width / 2 |> single, this.ClientSize.Height / 2 |> single
       controls 
         |> Seq.iter(fun c ->
-        if(c.Class <> "Op") then
+        if(c.Class = "planet") then
           c.WV.TranslateV(cx, cy)
           c.WV.ScaleV(1.f/1.1f, 1.f/1.1f)
           c.WV.TranslateV(-cx, -cy)
@@ -348,7 +342,7 @@ and LWCContainer() as this =
       timer.Stop()
     match newplanet with
      | Some(ex, ey) ->
-       controls.Add(LWButton(image=myPicture,Position=PointF(single ex, single ey),ClientSize=SizeF(100.f, 100.f),selected=false))
+       controls.Add(LWButton(image=myPicture,Position=PointF(single ex, single ey),ClientSize=SizeF(100.f, 100.f),selected=false,Class="planet"))
        newplanet <- None
        newMode <- false
        this.Invalidate()
@@ -376,7 +370,7 @@ and LWCContainer() as this =
     controls 
     |> Seq.iter(fun c ->
       let bkg = e.Graphics.Save()
-      let evt = new PaintEventArgs(e.Graphics, Rectangle(c.PositionInt, c.ClientSizeInt))
+      let evt = new PaintEventArgs(e.Graphics, Rectangle(c.PositionInt , c.ClientSizeInt))
       e.Graphics.Transform <- c.WV.WV // cambiamo la matrice di trasformazione
       c.OnPaint(evt)
       e.Graphics.Restore(bkg)
@@ -442,7 +436,7 @@ and LWButton() as this =
     let g = e.Graphics
     if (this.image <> null) then
       g.DrawImage(this.image, RectangleF(0.f, 0.f, this.Height,this.Width))
-    else 
+    else if (this.Width <> 0.f) then
       g.FillRectangle(this.color, 0.f, 0.f, this.Width, this.Height)
       g.DrawString(this.Name, new Font("Calibri", 10.f), Brushes.Black, 0.f, 0.f)
   
@@ -464,7 +458,6 @@ and LWButton() as this =
         | "Dimension-" -> p.DecrDim()
         | _ -> ()
      | _ -> ()
-
 let lwcc = new LWCContainer(Dock=DockStyle.Fill)
 
 let f = new Form(Text="Prova", Location=Point(500,500), Width=1000, Height=500)
