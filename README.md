@@ -13,5 +13,5 @@ Si estenda il controllo dell’esercizio 1 per consentire l’associazione di mu
 gravità (ovverosia si accelera e ci si muove per inerzia tipo asteroids).
 
 To try it:
-- Open "MID.fsx" with Visual Studio
+- Open "MID.fsx" with Visual Studio or others
 - Run it
