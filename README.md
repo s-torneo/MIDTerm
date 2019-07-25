@@ -11,3 +11,7 @@ che si potrà spostare mediante la tastiera. Dovranno essere previste aree clicc
 Esercizio 2
 Si estenda il controllo dell’esercizio 1 per consentire l’associazione di muovere l’astronave con un modello ad accelerazione in assenza di
 gravità (ovverosia si accelera e ci si muove per inerzia tipo asteroids).
+
+To try it:
+- Open "MID.fsx" with Visual Studio
+- Run it
