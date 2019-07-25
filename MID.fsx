@@ -1,6 +1,5 @@
 open System.Windows.Forms
 open System.Drawing
-open System
 
 // Libreria
 type WVMatrix () =
@@ -151,6 +150,7 @@ and LWCContainer() as this =
   let timer2 = new Timer(Interval=35)
   let mutable count1 = 0
   let mutable count2 = 0
+  let mutable limit = 1
 
   do 
     this.SetStyle(ControlStyles.AllPaintingInWmPaint ||| ControlStyles.OptimizedDoubleBuffer, true)
@@ -158,11 +158,14 @@ and LWCContainer() as this =
       for i in e.NewItems do
         (i :?> LWCControl).Parent <- Some(this)
       )
-    let dlg = new OpenFileDialog()
-    dlg.Filter <- "|*.BMP;*.JPG;*.GIF;*.PNG"
-    if dlg.ShowDialog() = DialogResult.OK then
-      let imagename = dlg.FileName
-      myPicture <- new Bitmap(imagename)
+    let mutable flag = true
+    while (flag) do
+      let dlg = new OpenFileDialog()
+      dlg.Filter <- "|*.BMP;*.JPG;*.GIF;*.PNG"
+      if dlg.ShowDialog() = DialogResult.OK then
+        let imagename = dlg.FileName
+        myPicture <- new Bitmap(imagename)
+        flag <- false
     controls.Add(LWButton(Position=PointF(100.f, 100.f),ClientSize=SizeF(30.f, 30.f),selected=false,Class="ship", image=myPicture))
     controls.Add(LWButton(Class="Op", Name="New Planet",Position=PointF(10.f, 10.f),ClientSize=SizeF(65.f,20.f),color=Brushes.SkyBlue))
     controls.Add(LWButton(Class="Op", Name="Up",Position=PointF(10.f, 40.f),ClientSize=SizeF(65.f,20.f),color=Brushes.SkyBlue))
@@ -177,10 +180,11 @@ and LWCContainer() as this =
     controls.Add(LWButton(Class="Op", Name="Dimension-",Position=PointF(10.f, 310.f),ClientSize=SizeF(65.f,20.f),color=Brushes.SkyBlue))
     
     timer.Tick.Add( fun _ ->
+       timer2.Stop()
        controls 
            |> Seq.iter(fun c ->
            if(c.Class = "ship") then
-             c.WV.TranslateW(5.f, 0.f)
+             c.WV.TranslateW(10.f, 0.f)
            )
        this.Invalidate()
        count1 <- count1 + 1
@@ -197,8 +201,9 @@ and LWCContainer() as this =
         )
      this.Invalidate()
      count2 <- count2 + 1
-     if (count2 = 50) then
+     if (count2 = limit) then
        count2 <- 0
+       limit <- 1
        timer2.Stop()
     )
    
@@ -210,7 +215,7 @@ and LWCContainer() as this =
   member this.Up() =
     controls 
         |> Seq.iter(fun c ->
-        if(c.Class = "planet") then
+        if(c.Class <> "Op") then
           c.WV.TranslateV(0.f, 10.f)
         )
     this.Invalidate()
@@ -218,7 +223,7 @@ and LWCContainer() as this =
   member this.Down() = 
     controls 
         |> Seq.iter(fun c ->
-        if(c.Class = "planet") then
+        if(c.Class <> "Op") then
           c.WV.TranslateV(0.f, -10.f)
         )
     this.Invalidate()
@@ -226,7 +231,7 @@ and LWCContainer() as this =
   member this.Left() = 
     controls 
         |> Seq.iter(fun c ->
-        if(c.Class = "planet") then
+        if(c.Class <> "Op") then
           c.WV.TranslateV(10.f, 0.f)
         )
     this.Invalidate()
@@ -234,7 +239,7 @@ and LWCContainer() as this =
   member this.Right() = 
     controls 
         |> Seq.iter(fun c ->
-        if(c.Class = "planet") then
+        if(c.Class <> "Op") then
           c.WV.TranslateV(-10.f, 0.f)
         )
     this.Invalidate()
@@ -243,9 +248,9 @@ and LWCContainer() as this =
     let cx, cy = this.ClientSize.Width / 2 |> single, this.ClientSize.Height / 2 |> single
     controls 
         |> Seq.iter(fun c ->
-        if(c.Class = "planet") then
+        if(c.Class <> "Op") then
           c.WV.TranslateV(cx, cy)
-          c.WV.RotateV(10.f)
+          c.WV.RotateV(-10.f)
           c.WV.TranslateV(-cx, -cy)
         )
     this.Invalidate()
@@ -254,9 +259,9 @@ and LWCContainer() as this =
     let cx, cy = this.ClientSize.Width / 2 |> single, this.ClientSize.Height / 2 |> single
     controls 
         |> Seq.iter(fun c ->
-        if(c.Class = "planet") then
+        if(c.Class <> "Op") then
           c.WV.TranslateV(cx, cy)
-          c.WV.RotateV(-10.f)
+          c.WV.RotateV(10.f)
           c.WV.TranslateV(-cx, -cy)
         )
     this.Invalidate()
@@ -265,7 +270,7 @@ and LWCContainer() as this =
       let cx, cy = this.ClientSize.Width / 2 |> single, this.ClientSize.Height / 2 |> single
       controls 
         |> Seq.iter(fun c ->
-        if(c.Class = "planet") then
+        if(c.Class <> "Op") then
           c.WV.TranslateV(cx, cy)
           c.WV.ScaleV(1.1f, 1.1f)
           c.WV.TranslateV(-cx, -cy)
@@ -276,7 +281,7 @@ and LWCContainer() as this =
       let cx, cy = this.ClientSize.Width / 2 |> single, this.ClientSize.Height / 2 |> single
       controls 
         |> Seq.iter(fun c ->
-        if(c.Class = "planet") then
+        if(c.Class <> "Op") then
           c.WV.TranslateV(cx, cy)
           c.WV.ScaleV(1.f/1.1f, 1.f/1.1f)
           c.WV.TranslateV(-cx, -cy)
@@ -287,7 +292,7 @@ and LWCContainer() as this =
       controls 
         |> Seq.iter(fun c ->
         if(c.selected) then
-          c.ClientSize <- SizeF(c.Width + 10.f, c.Height + 10.f)
+          c.WV.ScaleW(1.1f, 1.1f)
         )
       this.Invalidate()
 
@@ -295,7 +300,7 @@ and LWCContainer() as this =
       controls 
         |> Seq.iter(fun c ->
         if(c.selected) then
-          c.ClientSize <- SizeF(c.Width - 10.f, c.Height - 10.f)
+          c.WV.ScaleW(1.f/1.1f, 1.f/1.1f)
         )
       this.Invalidate()
 
@@ -322,7 +327,9 @@ and LWCContainer() as this =
           if dlg.ShowDialog() = DialogResult.OK then
             let imagename = dlg.FileName
             myPicture <- new Bitmap(imagename)
-          newplanet <- Some (e.X, e.Y)
+            newplanet <- Some (e.X, e.Y)
+          else
+            newMode <- false
 
   override this.OnMouseUp (e) =
     let oc =
@@ -339,7 +346,6 @@ and LWCContainer() as this =
             if(c.Class <> "Op") then 
               c.selected <- false
           )
-      timer.Stop()
     match newplanet with
      | Some(ex, ey) ->
        controls.Add(LWButton(image=myPicture,Position=PointF(single ex, single ey),ClientSize=SizeF(100.f, 100.f),selected=false,Class="planet"))
@@ -378,19 +384,22 @@ and LWCContainer() as this =
 
   override this.OnKeyUp e = 
     match e.KeyCode with
-    | Keys.D ->
+    | Keys.W ->
+      count1 <- 0
+      count2 <- 0
       timer.Start()
     | _ -> ()
 
   override this.OnKeyDown e =
     let mutable ship = LWCControl()
     match e.KeyCode with
-    | Keys.D ->
+    | Keys.W ->
       controls 
         |> Seq.iter(fun c ->
         if(c.Class = "ship") then
           c.WV.TranslateW(10.f, 0.f)
           ship <- c
+          limit <- limit + 5
         )
       controls.Move(controls.IndexOf(ship), controls.Count-1) 
     | Keys.Q ->
@@ -411,20 +420,6 @@ and LWCContainer() as this =
           c.WV.RotateW(-10.f)
           c.WV.TranslateW(-cx, -cy)
         )
-    | Keys.Z ->
-      let cx, cy = this.ClientSize.Width / 2 |> single, this.ClientSize.Height / 2 |> single
-      controls 
-        |> Seq.iter(fun c ->
-        if(c.Class = "ship") then
-          c.WV.ScaleW(1.1f, 1.1f)
-      )
-    | Keys.X ->
-      let cx, cy = this.ClientSize.Width / 2 |> single, this.ClientSize.Height / 2 |> single
-      controls 
-        |> Seq.iter(fun c ->
-        if(c.Class = "ship") then
-          c.WV.ScaleW(1.f/1.1f, 1.f/1.1f)
-      )
     | _ -> ()
     this.Invalidate()
 
@@ -460,7 +455,7 @@ and LWButton() as this =
      | _ -> ()
 let lwcc = new LWCContainer(Dock=DockStyle.Fill)
 
-let f = new Form(Text="Prova", Location=Point(500,500), Width=1000, Height=500)
+let f = new Form(Text="MidTerm - Torneo Stefano", Location=Point(500,500), Width=1000, Height=500)
 
 f.Controls.Add(lwcc)
 
